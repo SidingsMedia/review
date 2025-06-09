@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Sidings Media <contact@sidingsmedia.com>
+// SPDX-License-Identifier: MIT
+
 package com.sidingsmedia.review.monitor;
 
 import org.springframework.beans.factory.annotation.Autowired;
