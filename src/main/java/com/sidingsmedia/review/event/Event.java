@@ -5,6 +5,9 @@ package com.sidingsmedia.review.event;
 
 import java.util.Date;
 
+/**
+ * Representation of a single ZoneMinder event.
+ */
 public record Event(
         long id,
         long monitorId,

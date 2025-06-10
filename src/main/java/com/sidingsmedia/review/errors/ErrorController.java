@@ -9,8 +9,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.sidingsmedia.review.common.exceptions.NotFoundException;
 import com.sidingsmedia.review.common.exceptions.ValidationException;
 
+/**
+ * REST API exception handler.
+ */
 @ControllerAdvice
 public class ErrorController extends ResponseEntityExceptionHandler {
 
@@ -19,7 +23,15 @@ public class ErrorController extends ResponseEntityExceptionHandler {
         Error error = new Error(HttpStatus.BAD_REQUEST, "Validation of request failed");
         error.addError(new ValidationError(e.getMessage(), e.getField(), e.getRejectedValue()));
 
-        return new ResponseEntity<Object>(error, error.getStatus());
+        return new ResponseEntity<>(error, error.getStatus());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    protected ResponseEntity<Object> handleNotFound(NotFoundException e) {
+        Error error = new Error(HttpStatus.NOT_FOUND, "Requested resource was not found");
+        error.addError(new NotFoundError(e.getMessage(), e.getRequestedObject(), e.getObjectTypeName()));
+
+        return new ResponseEntity<>(error, error.getStatus());
     }
 
 }

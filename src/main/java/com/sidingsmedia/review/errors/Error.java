@@ -9,6 +9,9 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * API error response model.
+ */
 public class Error {
     private HttpStatus status;
     private int code;
@@ -59,13 +62,31 @@ public class Error {
     }
 }
 
+/**
+ * Generic sub error.
+ */
 interface SubError {
 
 }
 
+/**
+ * Error description for
+ * {@link com.sidingsmedia.review.common.exceptions.ValidationException}.
+ */
 record ValidationError(
-    String message,
-    String field,
-    Object rejectedValue
+        String message,
+        String field,
+        Object rejectedValue
 
+) implements SubError {
+}
+
+/**
+ * Error description for
+ * {@link com.sidingsmedia.review.common.exceptions.NotFoundException}.
+ */
+record NotFoundError(
+        String message,
+        Object requestedObject,
+        String objectType
 ) implements SubError {}

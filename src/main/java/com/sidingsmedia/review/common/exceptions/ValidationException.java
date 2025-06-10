@@ -3,6 +3,9 @@
 
 package com.sidingsmedia.review.common.exceptions;
 
+/**
+ * Validation of provided data failed.
+ */
 public class ValidationException extends RuntimeException {
     private String field;
     private Object rejectedValue;
