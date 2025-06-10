@@ -3,16 +3,11 @@
 
 package com.sidingsmedia.review.event;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Representation of a single ZoneMinder event.
  */
-public record Event(
-        long id,
-        long monitorId,
-        Date start,
-        Date end,
-        long frames,
+public record Event(long id, long monitorId, LocalDateTime start, LocalDateTime end, long frames,
         long size) {
 }

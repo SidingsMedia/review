@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "zoneminder.default-storage",
+  "type": "java.lang.String",
+  "description": "Default location to search for if an event does not link to a storage entry."
+}]}

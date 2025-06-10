@@ -3,13 +3,20 @@
 
 package com.sidingsmedia.review.event;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -21,14 +28,17 @@ public class EventRepository {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+    @Value("${zoneminder.default-storage}")
+    private String defaultStoragePath;
+
     /**
      * Get all the events in a given time period.
      *
-     * @param after  Include events with a start time after this point.
+     * @param after Include events with a start time after this point.
      * @param before Include events with a start time before this point.
      * @return List of events between the start and end times.
      */
-    public List<Event> getEventsInTimePeriod(Date after, Date before) {
+    public List<Event> getEventsInTimePeriod(LocalDateTime after, LocalDateTime before) {
         final String sql = """
                 SELECT
                     Id,
@@ -43,27 +53,24 @@ public class EventRepository {
                     StartDateTime > ?
                     AND StartDateTime < ?
                 """;
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Event(
-                rs.getLong("Id"),
-                rs.getLong("MonitorId"),
-                rs.getDate("StartDateTime"),
-                rs.getDate("EndDateTime"),
-                rs.getLong("Frames"),
-                rs.getLong("DiskSpace")),
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
+                        rs.getObject("StartDateTime", LocalDateTime.class),
+                        rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
+                        rs.getLong("DiskSpace")),
                 after, before);
     }
 
     /**
      * Get events in a given time period filtered by monitors.
      *
-     * @param after    Include events with a start time after this
-     *                 point.
-     * @param before   Include events with a start time before this
-     *                 point.
+     * @param after Include events with a start time after this point.
+     * @param before Include events with a start time before this point.
      * @param monitors Monitors to filter by.
      * @return List of events between the start and end times.
      */
-    public List<Event> getEventsInTimePeriod(Date after, Date before, long[] monitors) {
+    public List<Event> getEventsInTimePeriod(LocalDateTime after, LocalDateTime before,
+            long[] monitors) {
         final String inStmt = String.join(",", Collections.nCopies(monitors.length, "?"));
         final String sql = String.format("""
                 SELECT
@@ -89,13 +96,11 @@ public class EventRepository {
         params[1] = before;
         System.arraycopy(ArrayUtils.toObject(monitors), 0, params, 2, monitors.length);
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new Event(
-                rs.getLong("Id"),
-                rs.getLong("MonitorId"),
-                rs.getDate("StartDateTime"),
-                rs.getDate("EndDateTime"),
-                rs.getLong("Frames"),
-                rs.getLong("DiskSpace")),
+        return jdbcTemplate.query(sql,
+                (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
+                        rs.getObject("StartDateTime", LocalDateTime.class),
+                        rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
+                        rs.getLong("DiskSpace")),
                 params);
     }
 
@@ -120,18 +125,62 @@ public class EventRepository {
                     Id = ?
                 """;
 
-        List<Event> events = jdbcTemplate.query(sql, (rs, rowNum) -> new Event(
-                rs.getLong("Id"),
-                rs.getLong("MonitorId"),
-                rs.getDate("StartDateTime"),
-                rs.getDate("EndDateTime"),
-                rs.getLong("Frames"),
-                rs.getLong("DiskSpace")), eventId);
+        List<Event> events = jdbcTemplate.query(sql,
+                (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
+                        rs.getObject("StartDateTime", LocalDateTime.class),
+                        rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
+                        rs.getLong("DiskSpace")),
+                eventId);
 
         if (events.isEmpty()) {
             return Optional.empty();
         }
 
         return Optional.of(events.get(0));
+    }
+
+    /**
+     * Get an input stream for the event video file.
+     * 
+     * @param eventId ID of event.
+     * @return Video input stream.
+     * @throws IOException Failed to read file.
+     */
+    public InputStream getFileStream(long eventId) throws IOException {
+        final String sql = """
+                SELECT
+                    Events.MonitorId,
+                    Events.StartDateTime,
+                    Storage.Path
+                FROM
+                    Events
+                    LEFT OUTER JOIN
+                        Storage
+                        ON Events.StorageId = Storage.Id
+                WHERE
+                    Events.Id = ?
+                """;
+
+
+
+        Map<String, Object> row;
+        try {
+            row = jdbcTemplate.queryForMap(sql, eventId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+
+        LocalDateTime startDateTime = (LocalDateTime) row.get("StartDateTime");
+        String storagePath = (String) row.get("Path");
+        long monitor = (Long) row.get("MonitorId");
+
+        if (storagePath == null) {
+            storagePath = defaultStoragePath;
+        }
+
+        Path videoPath = Util.formatEventVideoPath(storagePath, monitor, eventId,
+                startDateTime.toLocalDate());
+
+        return Files.newInputStream(videoPath);
     }
 }
