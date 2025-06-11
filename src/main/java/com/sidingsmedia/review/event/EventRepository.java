@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -140,13 +141,12 @@ public class EventRepository {
     }
 
     /**
-     * Get an input stream for the event video file.
-     * 
-     * @param eventId ID of event.
-     * @return Video input stream.
-     * @throws IOException Failed to read file.
+     * Get path of event video.
+     *
+     * @param eventId Event to get path for.
+     * @return Event path.
      */
-    public InputStream getFileStream(long eventId) throws IOException {
+    public Path getEventVideoPath(long eventId) {
         final String sql = """
                 SELECT
                     Events.MonitorId,
@@ -178,9 +178,71 @@ public class EventRepository {
             storagePath = defaultStoragePath;
         }
 
-        Path videoPath = Util.formatEventVideoPath(storagePath, monitor, eventId,
-                startDateTime.toLocalDate());
+        Path videoPath = Paths.get(storagePath, String.valueOf(monitor),
+                startDateTime.toLocalDate().toString(), String.valueOf(eventId),
+                String.valueOf(eventId) + "-video.mp4");
+
+        return videoPath;
+    }
+
+    /**
+     * Get an input stream for the event video file.
+     *
+     * @param eventId ID of event.
+     * @return Video input stream.
+     * @throws IOException Failed to read file.
+     */
+    public InputStream getFileStream(long eventId) throws IOException {
+        Path videoPath = getEventVideoPath(eventId);
+
+        if (videoPath == null) {
+            return null;
+        }
 
         return Files.newInputStream(videoPath);
+    }
+
+    /**
+     * Get an event covering a specific time.
+     *
+     * @param monitorId ID of monitor to select event from.
+     * @param time Time across which event should cover.
+     * @return Event if it exists.
+     */
+    public Optional<Event> getEventCoveringTime(long monitorId, LocalDateTime time) {
+        // Order by frames limit 1 to avoid cases where multiple events
+        // have been created with only a couple of frames. Therefore
+        // prioritize the event with the most frames because it is most
+        // likely to be complete.
+        final String sql = """
+                SELECT
+                    Id,
+                    MonitorId,
+                    StartDateTime,
+                    EndDateTime,
+                    Frames,
+                    DiskSpace
+                FROM
+                    Events
+                WHERE
+                    MonitorId = ?
+                    AND StartDateTime <= ?
+                    AND EndDateTime > ?
+                ORDER BY
+                    Frames DESC LIMIT 1;
+                """;
+
+        List<Event> events = jdbcTemplate.query(sql,
+                (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
+                        rs.getObject("StartDateTime", LocalDateTime.class),
+                        rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
+                        rs.getLong("DiskSpace")),
+                monitorId, time, time);
+
+        if (events.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(events.get(0));
     }
 }

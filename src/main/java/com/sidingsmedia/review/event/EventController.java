@@ -3,9 +3,13 @@
 
 package com.sidingsmedia.review.event;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+
+import javax.imageio.ImageIO;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.slf4j.Logger;
@@ -14,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -87,5 +92,27 @@ public class EventController {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             logger.error("Error occurred when retrieving video", e);
         }
+    }
+
+    /**
+     * Get an event frame by it's timestamp.
+     *
+     * @param monitorId Id of monitor to fetch from.
+     * @param timestamp Timestamp to fetch frame for.
+     * @return Event frame.
+     * @throws IOException Failed to write image to buffer.
+     */
+    @GetMapping(value = "/frame/{monitorId}/{timestamp}")
+    public ResponseEntity<byte[]> frame(@PathVariable long monitorId,
+            @PathVariable @DateTimeFormat(
+                    iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime timestamp)
+            throws IOException {
+
+        BufferedImage frame = service.getFrame(monitorId, timestamp);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(frame, "jpeg", baos);
+        byte[] image = baos.toByteArray();
+
+        return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.IMAGE_JPEG).body(image);
     }
 }
