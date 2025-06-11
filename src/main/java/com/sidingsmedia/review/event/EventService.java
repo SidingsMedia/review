@@ -15,6 +15,7 @@ import java.util.Optional;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.librealsense.frame;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,6 +97,7 @@ public class EventService {
      */
     public BufferedImage getFrame(long monitorId, LocalDateTime timestamp) {
         Optional<Event> event = repository.getEventCoveringTime(monitorId, timestamp);
+        logger.debug("Fetching frame at {} for monitor {}", timestamp, monitorId);
         if (event.isEmpty()) {
             throw new NotFoundException("No event covering the requested time period exists",
                     timestamp, Event.class);
@@ -106,13 +108,19 @@ public class EventService {
             throw new UnexpectedNullValueException("Video path was null when event exists", null);
         }
 
+        logger.debug("Using video at {}", videoPath);
+
         long offset = ChronoUnit.MICROS.between(event.get().start(), timestamp);
+        logger.trace("Video offset is {}", offset);
+
         try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(videoPath.toString());
                 Java2DFrameConverter converter = new Java2DFrameConverter();) {
 
+            logger.trace("Starting frame grabber");
             grabber.start();
             grabber.setTimestamp(offset);
             Frame frame = grabber.grabImage();
+            logger.trace("Grabbed frame");
             return converter.convert(frame);
 
         } catch (Exception e) {
