@@ -8,6 +8,8 @@ import { createRoot } from "react-dom/client";
 
 import App from "./App.tsx";
 import DashboardLayout from "./layouts/DashboardLayout";
+import EventPage from "./pages/EventPage.tsx";
+import EventsListPage from "./pages/EventsListPage.tsx";
 import IndexPage from "./pages/IndexPage.tsx";
 
 const router = createBrowserRouter([
@@ -17,7 +19,14 @@ const router = createBrowserRouter([
       {
         path: "/",
         Component: DashboardLayout,
-        children: [{ path: "/", Component: IndexPage }],
+        children: [
+          { path: "/", Component: IndexPage },
+          {
+            path: "/events",
+            Component: EventsListPage,
+          },
+          { path: "/events/:eventId", Component: EventPage },
+        ],
       },
     ],
   },

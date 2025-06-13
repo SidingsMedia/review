@@ -3,7 +3,7 @@
 
 import type { Branding } from "@toolpad/core";
 
-import React, { createContext } from "react";
+import { createContext, useContext } from "react";
 
 const BRANDING = {
   // logo: <img alt="MUI logo" height={40} src="/icon.svg" width={40} />,
@@ -12,5 +12,5 @@ const BRANDING = {
 
 export const BrandContext = createContext<Branding>(BRANDING);
 export function useBranding(): Branding {
-  return React.useContext(BrandContext);
+  return useContext(BrandContext);
 }

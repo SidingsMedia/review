@@ -4,7 +4,7 @@
 import * as React from "react";
 import { Outlet } from "react-router";
 
-// import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import PersonalVideoIcon from "@mui/icons-material/PersonalVideo";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
@@ -23,6 +23,7 @@ const NAVIGATION: Navigation = [
     icon: <VideoLibraryIcon />,
     segment: "events",
     title: "Events",
+    pattern: "events{/:eventId}?",
   },
 ];
 
@@ -31,7 +32,7 @@ export default function App(): React.JSX.Element {
   // const navigate = useNavigate();
 
   return (
-    <LocalizationProvider adapterLocale="en-gb" /*dateAdapter={AdapterLuxon}*/>
+    <LocalizationProvider adapterLocale="en-gb" dateAdapter={AdapterLuxon}>
       <ReactRouterAppProvider branding={branding} navigation={NAVIGATION}>
         <Outlet />
       </ReactRouterAppProvider>
