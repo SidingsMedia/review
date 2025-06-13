@@ -1,5 +1,14 @@
-{"properties": [{
-  "name": "zoneminder.default-storage",
-  "type": "java.lang.String",
-  "description": "Default location to search for if an event does not link to a storage entry."
-}]}
+{
+    "properties": [
+        {
+            "name": "zoneminder.default-storage",
+            "type": "java.lang.String",
+            "description": "Default location to search for if an event does not link to a storage entry."
+        },
+        {
+            "name": "server.cors.allowed-origin-patterns",
+            "type": "java.lang.List<String>",
+            "description": "Patterns of allowed origins for CORS."
+        }
+    ]
+}
