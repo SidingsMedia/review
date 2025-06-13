@@ -74,15 +74,22 @@ public class EventController {
      *
      * @param response Response to directly manipulate to write file to.
      * @param eventId ID of event to export.
+     * @param download Include content disposition headers.
      */
     @GetMapping(value = "/{eventId}/export", produces = "video/mp4")
-    public void export(HttpServletResponse response, @PathVariable() long eventId) {
+    public void export(HttpServletResponse response, @PathVariable() long eventId,
+            @RequestParam(required = false, defaultValue = "false") boolean download) {
 
         // Make sure request to service is first so if that fails we
         // still use the default error handling
         try (InputStream inputStream = service.export(eventId);
                 ServletOutputStream outputStream = response.getOutputStream();) {
             response.setContentType("video/mp4");
+
+            if (download) {
+                response.addHeader("Content-Disposition",
+                        String.format("attachment; filename=event_%d.mp4", eventId));
+            }
 
             IOUtils.copy(inputStream, outputStream);
 
