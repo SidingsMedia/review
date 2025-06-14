@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import com.sidingsmedia.review.common.ListResponse;
 
 import jakarta.servlet.ServletOutputStream;
@@ -95,6 +95,9 @@ public class EventController {
 
             response.setStatus(HttpStatus.OK.value());
             response.flushBuffer();
+        } catch (AsyncRequestNotUsableException e) {
+            // Likely that the peer reset the connection during streaming
+            logger.debug(e.getMessage());
         } catch (IOException e) {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             logger.error("Error occurred when retrieving video", e);
