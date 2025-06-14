@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Sidings Media <contact@sidingsmedia.com>
 // SPDX-License-Identifier: MIT
 
+import type { InputBasePropsSizeOverrides } from "@mui/material/InputBase";
+import type { OverridableStringUnion } from "@mui/types";
+
 import type { List, Monitor } from "../../lib/api/responses";
 
 import * as React from "react";
@@ -18,6 +21,11 @@ interface MonitorAutoSelectPropsBase {
   disabled?: boolean;
   error?: boolean;
   helperText?: string | null;
+  size?: OverridableStringUnion<
+    "small" | "medium",
+    InputBasePropsSizeOverrides
+  >;
+  required?: boolean;
 }
 
 interface MonitorAutoSelectPropsSingle extends MonitorAutoSelectPropsBase {
@@ -104,9 +112,11 @@ export default function MonitorAutoSelect(
           props.onChange(e, value as Monitor | null);
         }
       }}
+      size={props.size}
       renderInput={(params) => (
         <TextField
           {...params}
+          required={props.required}
           label={"Monitors"}
           name="target"
           error={props.error}

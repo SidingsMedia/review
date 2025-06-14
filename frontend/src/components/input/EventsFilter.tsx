@@ -178,6 +178,7 @@ export default function EventsFilter(
 
       <MonitorAutoSelect
         multiple
+        required
         disabled={loading}
         value={monitors}
         onChange={(_e, val) => {
