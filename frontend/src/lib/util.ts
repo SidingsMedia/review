@@ -1,6 +1,26 @@
+// SPDX-FileCopyrightText: 2025 Sidings Media <contact@sidingsmedia.com>
+// SPDX-License-Identifier: MIT
+
+import { Duration } from "luxon";
+
+/**
+ * Format a runtime as a digital style mm:ss (or hh:mm:ss if there is an
+ * hours component).
+ *
+ * @param runtime Runtime in seconds
+ * @returns Formatted digital style runtime.
+ */
+export function formatRuntime(runtime: number): string {
+  const duration = Duration.fromMillis(runtime * 1000);
+  if (duration.hours > 0) {
+    return duration.toFormat("hh:mm:ss");
+  }
+  return duration.toFormat("mm:ss");
+}
+
 // SPDX-SnippetBegin
-// SPDX-License-Identifier: CC-BY-SA-4.0
 // SPDX-SnippetCopyrightText: 2013 Mark Penner <https://github.com/mnpenner>
+// SPDX-License-Identifier: CC-BY-SA-4.0
 
 /**
  * Format bytes as human-readable text.
@@ -37,3 +57,5 @@ export function humanFileSize(bytes: number, si = false, dp = 1) {
 
   return bytes.toFixed(dp) + " " + units[u];
 }
+
+// SPDX-SnippetEnd

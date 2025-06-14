@@ -8,4 +8,5 @@ export interface Event {
   end: string;
   frames: number;
   size: number;
+  runtime: number;
 }
