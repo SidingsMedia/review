@@ -47,7 +47,8 @@ public class EventRepository {
                     StartDateTime,
                     EndDateTime,
                     Frames,
-                    DiskSpace
+                    DiskSpace,
+                    Length
                 FROM
                     Events
                 WHERE
@@ -58,7 +59,7 @@ public class EventRepository {
                 (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
                         rs.getObject("StartDateTime", LocalDateTime.class),
                         rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
-                        rs.getLong("DiskSpace")),
+                        rs.getLong("DiskSpace"), rs.getDouble("Length")),
                 after, before);
     }
 
@@ -80,7 +81,8 @@ public class EventRepository {
                     StartDateTime,
                     EndDateTime,
                     Frames,
-                    DiskSpace
+                    DiskSpace,
+                    Length
                 FROM
                     Events
                 WHERE
@@ -101,7 +103,7 @@ public class EventRepository {
                 (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
                         rs.getObject("StartDateTime", LocalDateTime.class),
                         rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
-                        rs.getLong("DiskSpace")),
+                        rs.getLong("DiskSpace"), rs.getDouble("Length")),
                 params);
     }
 
@@ -119,7 +121,8 @@ public class EventRepository {
                     StartDateTime,
                     EndDateTime,
                     Frames,
-                    DiskSpace
+                    DiskSpace,
+                    Length
                 FROM
                     Events
                 WHERE
@@ -130,7 +133,7 @@ public class EventRepository {
                 (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
                         rs.getObject("StartDateTime", LocalDateTime.class),
                         rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
-                        rs.getLong("DiskSpace")),
+                        rs.getLong("DiskSpace"), rs.getDouble("Length")),
                 eventId);
 
         if (events.isEmpty()) {
@@ -221,7 +224,8 @@ public class EventRepository {
                     StartDateTime,
                     EndDateTime,
                     Frames,
-                    DiskSpace
+                    DiskSpace,
+                    Length
                 FROM
                     Events
                 WHERE
@@ -236,7 +240,7 @@ public class EventRepository {
                 (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
                         rs.getObject("StartDateTime", LocalDateTime.class),
                         rs.getObject("EndDateTime", LocalDateTime.class), rs.getLong("Frames"),
-                        rs.getLong("DiskSpace")),
+                        rs.getLong("DiskSpace"), rs.getDouble("Length")),
                 monitorId, time, time);
 
         if (events.isEmpty()) {

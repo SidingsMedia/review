@@ -9,5 +9,5 @@ import java.time.LocalDateTime;
  * Representation of a single ZoneMinder event.
  */
 public record Event(long id, long monitorId, LocalDateTime start, LocalDateTime end, long frames,
-        long size) {
+        long size, double runtime) {
 }
