@@ -54,6 +54,8 @@ public class EventRepository {
                 WHERE
                     StartDateTime > ?
                     AND StartDateTime < ?
+                ORDER BY
+                    StartDateTime ASC
                 """;
         return jdbcTemplate.query(sql,
                 (rs, rowNum) -> new Event(rs.getLong("Id"), rs.getLong("MonitorId"),
@@ -89,6 +91,8 @@ public class EventRepository {
                     StartDateTime > ?
                     AND StartDateTime < ?
                     AND MonitorId IN (%s)
+                ORDER BY
+                    StartDateTime ASC
                 """, inStmt);
 
         // Java will get grumpy if we just try to put all three params
