@@ -50,6 +50,7 @@ export default function EventPage(): React.JSX.Element {
 
   return (
     <PageContainer
+      maxWidth={false}
       title={title}
       breadcrumbs={breadcrumbs}
       slotProps={{
@@ -71,7 +72,7 @@ export default function EventPage(): React.JSX.Element {
       slots={{ header: EventViewerControls }}
       sx={{ flex: 1 }}
     >
-      <Container component="main" sx={{ width: "100%" }}>
+      <Container component="main" maxWidth={false}>
         <Stack direction="column">
           <TransformWrapper
             ref={(ref) => {
@@ -79,15 +80,17 @@ export default function EventPage(): React.JSX.Element {
             }}
           >
             <TransformComponent>
-              <ReactPlayer
-                url={video}
-                height="100%"
-                width="100%"
-                // TODO: Custom controls
-                controls
-                playbackRate={playbackRate}
-                pip={false}
-              />
+              <div style={{ maxHeight: "80vh" }}>
+                <ReactPlayer
+                  url={video}
+                  height="100%"
+                  width="100%"
+                  // TODO: Custom controls
+                  controls
+                  playbackRate={playbackRate}
+                  pip={false}
+                />
+              </div>
             </TransformComponent>
           </TransformWrapper>
         </Stack>

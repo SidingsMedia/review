@@ -48,7 +48,7 @@ export default function EventsListPage(): React.JSX.Element {
   });
 
   return (
-    <PageContainer>
+    <PageContainer maxWidth={false}>
       <Container component="main" maxWidth="xl">
         <div
           style={{ display: "flex", flexDirection: "column", width: "100%" }}
