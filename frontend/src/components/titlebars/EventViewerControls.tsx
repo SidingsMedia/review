@@ -18,19 +18,17 @@ import Stack from "@mui/material/Stack";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
-import { PageHeader, PageHeaderToolbar, useNotifications } from "@toolpad/core";
+import { PageHeader, PageHeaderToolbar } from "@toolpad/core";
 
 import { formatRuntime, humanFileSize } from "../../lib/util";
-import { ApiError } from "../../lib/api/ApiError";
-import { NOTIFICATION_DISPLAY_TIME } from "../../lib/api/constants";
 import PlaybackSpeedSelect from "../input/PlaybackSpeedSelect";
 import ZoomControls from "../input/ZoomControls";
-import { useApi } from "../../context/ApiContext";
 
 interface ToolbarProps {
   rateSelectProps: PlaybackSpeedSelectProps;
   zoomControlsProps: ZoomControlsProps;
-  eventId: number;
+  loaded: boolean;
+  event?: Event;
 }
 
 export type EventViewerControlsProps = PageHeaderProps & {
@@ -38,61 +36,13 @@ export type EventViewerControlsProps = PageHeaderProps & {
 };
 
 function Toolbar(props: ToolbarProps): React.JSX.Element {
-  const api = useApi();
-  const notifications = useNotifications();
-
-  const [loaded, setLoaded] = React.useState(false);
-  const [event, setEvent] = React.useState<Event | undefined>();
-
-  React.useEffect(() => {
-    const abortController = new AbortController();
-
-    function cleanup(): void {
-      abortController.abort();
-    }
-
-    async function loadEvent(
-      signal: AbortSignal,
-    ): Promise<(() => void) | undefined> {
-      let event: Event;
-      try {
-        event = await api.get<Event>(`event/${props.eventId.toString()}`, {
-          signal,
-        });
-      } catch (e) {
-        if (e instanceof ApiError) {
-          notifications.show(e.error.message, {
-            severity: "error",
-            autoHideDuration: NOTIFICATION_DISPLAY_TIME,
-          });
-        } else {
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          notifications.show(`Network error: ${e}`, {
-            severity: "error",
-            autoHideDuration: NOTIFICATION_DISPLAY_TIME,
-          });
-        }
-        return cleanup;
-      }
-
-      setEvent(event);
-      setLoaded(true);
-    }
-
-    if (!loaded) {
-      void loadEvent(abortController.signal);
-    }
-
-    return cleanup;
-  }, [api, loaded, notifications, props.eventId]);
-
   return (
     <PageHeaderToolbar>
       <Stack direction="row" alignItems="center" gap={1}>
         <Typography>
           Runtime:{" "}
-          {loaded && event ? (
-            formatRuntime(event.runtime)
+          {props.loaded && props.event ? (
+            formatRuntime(props.event.runtime)
           ) : (
             <Skeleton
               variant="text"
@@ -103,8 +53,8 @@ function Toolbar(props: ToolbarProps): React.JSX.Element {
         </Typography>
         <Typography>
           Size:{" "}
-          {loaded && event ? (
-            humanFileSize(event.size)
+          {props.loaded && props.event ? (
+            humanFileSize(props.event.size)
           ) : (
             <Skeleton
               variant="text"
@@ -116,15 +66,19 @@ function Toolbar(props: ToolbarProps): React.JSX.Element {
         <Tooltip title="Download">
           <IconButton
             aria-label="Download"
-            // sx={{ width: 50, height: 50 }}
+            disabled={!props.loaded}
             onClick={() => {
+              if (!props.event) {
+                return;
+              }
+
               const link = document.createElement("a");
-              link.href = api
-                .constructUrl(
-                  `event/${props.eventId.toString()}/export?download=true`,
-                )
-                .toString();
-              link.setAttribute("download", "");
+              link.href = props.event.location;
+              link.setAttribute(
+                "download",
+                `event-${props.event.id.toString()}.mp4`,
+              );
+              link.setAttribute("target", "_blank");
               document.body.appendChild(link);
               link.click();
               link.parentNode?.removeChild(link);

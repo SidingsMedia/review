@@ -9,6 +9,11 @@
             "name": "server.cors.allowed-origin-patterns",
             "type": "java.lang.List<String>",
             "description": "Patterns of allowed origins for CORS."
+        },
+        {
+            "name": "server.media-roots",
+            "type": "java.lang.Map<String,String>",
+            "description": "Base URL to fetch media from for each storage location. Use `default` to set the location when no storage is specified."
         }
     ]
 }

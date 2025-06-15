@@ -9,4 +9,6 @@ export interface Event {
   frames: number;
   size: number;
   runtime: number;
+  location: string;
+  thumbnail: string;
 }
