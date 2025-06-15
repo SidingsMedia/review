@@ -81,36 +81,52 @@ public class EventRepository {
     /**
      * Get all the events in a given time period.
      *
-     * @param after Include events with a start time after this point.
-     * @param before Include events with a start time before this point.
+     * @param start Include events with a start or end time after this point.
+     * @param end Include events with a start time before this point.
      * @return List of events between the start and end times.
      */
-    public List<Event> getEventsInTimePeriod(LocalDateTime after, LocalDateTime before) {
+    public List<Event> getEventsInTimePeriod(LocalDateTime start, LocalDateTime end) {
         final String sql = BASE_EVENT_QUERY + """
                 WHERE
-                    Events.StartDateTime > ?
-                    AND Events.StartDateTime < ?
+                    (
+                        Events.StartDateTime > ?
+                        AND Events.StartDateTime < ?
+                    )
+                    OR
+                    (
+                        Events.StartDateTime < ?
+                        AND Events.EndDateTime > ?
+                    )
                 ORDER BY
                     Events.StartDateTime ASC
                 """;
-        return jdbcTemplate.query(sql, (rs, rowNum) -> rsToEvent(rs), after, before);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> rsToEvent(rs), start, end, start, start);
     }
 
     /**
      * Get events in a given time period filtered by monitors.
      *
-     * @param after Include events with a start time after this point.
-     * @param before Include events with a start time before this point.
+     * @param start Include events with a start time after this point.
+     * @param end Include events with a start time before this point.
      * @param monitors Monitors to filter by.
      * @return List of events between the start and end times.
      */
-    public List<Event> getEventsInTimePeriod(LocalDateTime after, LocalDateTime before,
+    public List<Event> getEventsInTimePeriod(LocalDateTime start, LocalDateTime end,
             long[] monitors) {
         final String inStmt = String.join(",", Collections.nCopies(monitors.length, "?"));
         final String sql = String.format(BASE_EVENT_QUERY + """
                 WHERE
-                    Events.StartDateTime > ?
-                    AND Events.StartDateTime < ?
+                    (
+                        (
+                            Events.StartDateTime > ?
+                            AND Events.StartDateTime < ?
+                        )
+                        OR
+                        (
+                            Events.StartDateTime < ?
+                            AND Events.EndDateTime > ?
+                        )
+                    )
                     AND Events.MonitorId IN (%s)
                 ORDER BY
                     Events.StartDateTime ASC
@@ -119,10 +135,12 @@ public class EventRepository {
         // Java will get grumpy if we just try to put all three params
         // in the query call because monitors is an array so we need to
         // get it all into one big array first
-        Object[] params = new Object[2 + monitors.length];
-        params[0] = after;
-        params[1] = before;
-        System.arraycopy(ArrayUtils.toObject(monitors), 0, params, 2, monitors.length);
+        Object[] params = new Object[4 + monitors.length];
+        params[0] = start;
+        params[1] = end;
+        params[2] = start;
+        params[3] = start;
+        System.arraycopy(ArrayUtils.toObject(monitors), 0, params, 4, monitors.length);
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> rsToEvent(rs), params);
     }
