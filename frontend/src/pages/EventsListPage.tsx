@@ -17,13 +17,11 @@ import { PageContainer } from "@toolpad/core";
 
 import EventSearchToolbar from "../components/tables/EventSearchToolbar";
 import { humanFileSize } from "../lib/util";
-import { useApi } from "../context/ApiContext";
 import { useBranding } from "../context/BrandContext";
 
 type TableData = Event & { monitorName: string };
 
 export default function EventsListPage(): React.JSX.Element {
-  const api = useApi();
   const branding = useBranding();
   const navigate = useNavigate();
 
@@ -105,11 +103,7 @@ export default function EventsListPage(): React.JSX.Element {
                       icon={<DownloadIcon />}
                       onClick={() => {
                         const link = document.createElement("a");
-                        link.href = api
-                          .constructUrl(
-                            `event/${row.id.toString()}/export?download=true`,
-                          )
-                          .toString();
+                        link.href = row.location;
                         link.setAttribute(
                           "download",
                           `${row.monitorName.replace(/[^a-z0-9]/gi, "_").toLowerCase()}_${row.id.toString()}.mp4`,
