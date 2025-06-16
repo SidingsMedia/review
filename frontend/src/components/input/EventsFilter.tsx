@@ -34,6 +34,8 @@ export interface EventsFilterProps {
     InputBasePropsSizeOverrides
   >;
   onSearch?: (events: Event[], selectedMonitors: Monitor[]) => void;
+  onDateFromChange?: (dateFrom: DateTime | null) => void;
+  onDateToChange?: (dateTo: DateTime | null) => void;
 }
 
 export default function EventsFilter(
@@ -136,6 +138,9 @@ export default function EventsFilter(
         value={dateFrom}
         onChange={(val) => {
           setDateFrom(val);
+          if (props.onDateFromChange) {
+            props.onDateFromChange(val);
+          }
         }}
         onError={(newError) => {
           setError({ ...error, dateFrom: newError });
@@ -162,6 +167,9 @@ export default function EventsFilter(
         value={dateTo}
         onChange={(val) => {
           setDateTo(val);
+          if (props.onDateToChange) {
+            props.onDateToChange(val);
+          }
         }}
         onError={(newError) => {
           setError({ ...error, dateTo: newError });

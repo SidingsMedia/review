@@ -11,6 +11,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import EventPage from "./pages/EventPage.tsx";
 import EventsListPage from "./pages/EventsListPage.tsx";
 import IndexPage from "./pages/IndexPage.tsx";
+import MontagePage from "./pages/MontagePage.tsx";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
             Component: EventsListPage,
           },
           { path: "/events/:eventId", Component: EventPage },
+          { path: "/montage", Component: MontagePage },
         ],
       },
     ],

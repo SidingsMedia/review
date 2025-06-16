@@ -17,7 +17,7 @@ const NAVIGATION: Navigation = [
   {
     icon: <PersonalVideoIcon />,
     segment: "montage",
-    title: "Montage Review",
+    title: "Montage",
   },
   {
     icon: <VideoLibraryIcon />,
