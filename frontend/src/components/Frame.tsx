@@ -24,8 +24,7 @@ export default function Frame(props: FrameProps): React.JSX.Element {
   const ALERT_TIME_DIFF = MAX_TIME_DIFF * 3;
 
   const [currentEvent, setCurrentEvent] = React.useState<Event>();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_nextEvent, setNextEvent] = React.useState<Event>();
+  const [nextEvent, setNextEvent] = React.useState<Event>();
   const [progress, setProgress] = React.useState<number>();
   const playerRef = React.createRef<ReactPlayer>();
 
@@ -116,6 +115,15 @@ export default function Frame(props: FrameProps): React.JSX.Element {
                 setProgress(playedSeconds);
               }}
             />
+            {nextEvent ? (
+              <ReactPlayer
+                url={nextEvent.location}
+                pip={false}
+                muted
+                playing={false}
+                style={{ display: "none" }}
+              />
+            ) : null}
           </div>
         </TransformComponent>
       </TransformWrapper>
