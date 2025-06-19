@@ -53,7 +53,7 @@ SPDX-License-Identifier: MIT
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <version>3.3.5</version>
+            <version>3.5.2</version>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
