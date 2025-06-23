@@ -1,16 +1,15 @@
 // SPDX-FileCopyrightText: 2025 Sidings Media <contact@sidingsmedia.com>
 // SPDX-License-Identifier: MIT
 
+import { Navigate, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { StrictMode } from "react";
-import { createBrowserRouter } from "react-router";
 import { createRoot } from "react-dom/client";
 
 import App from "./App.tsx";
 import DashboardLayout from "./layouts/DashboardLayout";
 import EventPage from "./pages/EventPage.tsx";
 import EventsListPage from "./pages/EventsListPage.tsx";
-import IndexPage from "./pages/IndexPage.tsx";
 import MontagePage from "./pages/MontagePage.tsx";
 
 const router = createBrowserRouter([
@@ -21,7 +20,7 @@ const router = createBrowserRouter([
         path: "/",
         Component: DashboardLayout,
         children: [
-          { path: "/", Component: IndexPage },
+          { path: "/", element: <Navigate replace to="/montage" /> },
           {
             path: "/events",
             Component: EventsListPage,
