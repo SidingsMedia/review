@@ -67,7 +67,7 @@ SPDX-License-Identifier: MIT
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>javacv-platform</artifactId>
-            <version>1.5.11</version>
+            <version>1.5.12</version>
         </dependency>
     </dependencies>
 
